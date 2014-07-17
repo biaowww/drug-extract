@@ -12,11 +12,12 @@ class MySpider(CrawlSpider):
 	allowed_domains = ['wanfangdata.com.cn']
 	drugs = ['捷诺维', ]
 	start_urls = ['http://s.wanfangdata.com.cn/Paper.aspx?q=' + drug for drug in drugs]
-	print start_urls;
 	rules = [
-	 	 # Rule(LinkExtractor(restrict_xpaths=('//p[@class="pager_space"]'), unique=True), callback="parse_items", follow=True), 
-		   Rule(LinkExtractor(allow=['Paper.aspx\?q=' + drug + '&p=\d+' for drug in drugs], restrict_xpaths=('//p[@class="pager_space"]'), unique=True), callback="parse_items", follow=True), 
-
+	 	   Rule(LinkExtractor(restrict_xpaths=('//p[@class="pager_space"]'), unique=True), callback="parse_items", follow=True), 
+		 # Rule(LinkExtractor(allow=('\?q='+drug+'&p=\d+' for drug in drugs), restrict_xpaths=('//p[@class="pager_space"]'), unique=True), callback="parse_items", follow=True), 
+		 # Rule(LinkExtractor(restrict_xpaths=('//p[@class="pager_space"]'), unique=True), follow=True), 
+		 # Rule(LinkExtractor(restrict_xpaths('//ul[@class="list_ul"]/'), unique=True), follow=False),
+		 # Rule(LinkExtractor(allow=('')))
 	]
 
 	def parse_items(self, response):
