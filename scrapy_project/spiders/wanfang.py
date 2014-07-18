@@ -4,6 +4,7 @@ import scrapy
 
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
+from scrapy.http import Request
 
 from scrapy_project.items import ScrapyProjectItem
 
@@ -13,11 +14,11 @@ class MySpider(CrawlSpider):
     drugs = ['捷诺维', ]
     start_urls = ['http://s.wanfangdata.com.cn/Paper.aspx?q=' + drug for drug in drugs]
     rules = [
-            Rule(LinkExtractor(allow=('http://d\.wanfangdata\.com\.cn/Periodical_\w+\d+\.aspx'), restrict_xpaths=('//ul[@class="list_ul"]'), unique=True), callback="parse_items", follow=False),
+            Rule(LinkExtractor(restrict_xpaths=('//ul[@class="list_ul"]/li[@class="title_li"]/a[3]'), unique=True), callback="parse_items", follow=False),
             Rule(LinkExtractor(restrict_xpaths=('//p[@class="pager_space"]'), unique=True), follow=True), 
             # Rule(LinkExtractor(allow=('\?q='+drug+'&p=\d+' for drug in drugs), restrict_xpaths=('//p[@class="pager_space"]'), unique=True), callback="parse_items", follow=True), 
     ]
-
+    
     def parse_items(self, response):
         # self.log('Hi, this is an item page! %s' % response.url)
 
@@ -42,15 +43,21 @@ class MySpider(CrawlSpider):
         post['keywords'] = []
 
         for item in items:
-            print "_"*80, item.extract()
+            print "_"*80 + "\n", item.extract()
                
             content = u""
             if item.xpath('./th/t'):
                 content = item.xpath('./th/t/text()').extract()[0]
-               
-            # print "+"*80, item.xpath('./th/t/text()').extract()
-            # print "*"*80, content == u'\u5173\u952e\u8bcd\uff1a'
-
+            '''
+            # get a link for next page
+            next_page = hxs.xpath('//p[@class="pager_space"]/a')
+            next_page_link = u""
+            for link in next_page:
+                if link.xpath('t/text()').extract() == []:
+                    pass
+                elif link.xpath('t/text()').extract()[0] == u'\u4e0b\u4e00\u9875':
+                    next_page_link = link.xpath('@href').extract()   
+            '''
             if content == u'\u4f5c\u8005':
                 _authors = item.xpath('./td/a')    ### extract authors information
                 for _author in _authors:
