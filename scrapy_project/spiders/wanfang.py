@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import urllib
 import scrapy
 
 from scrapy.contrib.spiders import CrawlSpider, Rule
@@ -8,11 +9,22 @@ from scrapy.http import Request
 
 from scrapy_project.items import ScrapyProjectItem
 
+def get_drugs():
+    f = open('drugs.txt', 'r')
+    s = f.readlines()
+    f.close()
+
+    drugs = []
+    for line in s:
+        if line not in drugs:
+            drugs.append(line)
+    return drugs
+
 class MySpider(CrawlSpider):
     name = 'wanfang'
     allowed_domains = ['wanfangdata.com.cn']
-    drugs = ['捷诺维', ]
-    start_urls = ['http://s.wanfangdata.com.cn/Paper.aspx?q=' + drug for drug in drugs]
+    drugs = get_drugs()
+    start_urls = ['http://s.wanfangdata.com.cn/Paper.aspx?q='+urllib.quote(' '.join(drugs)), ]
     rules = [
             Rule(LinkExtractor(restrict_xpaths=('//ul[@class="list_ul"]/li[@class="title_li"]/a[3]'), unique=True), callback="parse_items", follow=False),
             Rule(LinkExtractor(restrict_xpaths=('//p[@class="pager_space"]'), unique=True), follow=True), 
