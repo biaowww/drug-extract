@@ -53,6 +53,7 @@ class MySpider(CrawlSpider):
 
         post['authors'] = []
         post['keywords'] = []
+        post['institutes'] = []
 
         for item in items:
             print "_"*80 + "\n", item.extract()
@@ -70,14 +71,31 @@ class MySpider(CrawlSpider):
                 elif link.xpath('t/text()').extract()[0] == u'\u4e0b\u4e00\u9875':
                     next_page_link = link.xpath('@href').extract()   
             '''
+            ###    extract authors' names
             if content == u'\u4f5c\u8005':
-                _authors = item.xpath('./td/a')    ### extract authors information
+                _authors = item.xpath('./td/a')
                 for _author in _authors:
                     author = _author.xpath('./text()').extract()[1].replace(' ', '').replace('\r\n', '')
                     post['authors'].append(author)
                 continue
+            ###    extract institutes information
+            elif content == u'\u4f5c\u8005\u5355\u4f4d':
+                if item.xpath('./td/ol/li'): 
+                    _institutes = item.xpath('./td/ol/li')
+                    for _institue in _institutes:
+                        institute = _institue.xpath('./text()').extract()[0].replace(' ', '').replace('\r\n', '')
+                        post['institutes'].append(institute)
+                else: 
+                    institute = item.xpath('./td/text()').extract()[0].replace(' ', '').replace('\r\n', '') 
+                    post['institutes'].append(institute)
+            ###    extract journal name and volume number     
+            elif content == u'\u520a  \u540d\uff1a':
+                post['journal'] = item.xpath('./td/a/text()').extract()[0].replace(' ', '').replace('\r\n', '')
+            elif content == u'\u5e74\uff0c\u5377\u0028\u671f\u0029':
+                post['volume'] = item.xpath('./td/a/text()').extract()[0].replace(' ', '').replace('\r\n', '')
+            ###    extract keywords    
             elif content == u'\u5173\u952e\u8bcd\uff1a':
-                _keywords = item.xpath('./td/a')    ###	extract keywords
+                _keywords = item.xpath('./td/a')    
                 for _keyword in _keywords:
                     if _keyword.xpath('./text()').extract():
                         keyword = _keyword.xpath('./text()').extract()[0].replace(' ', '').replace('\r\n', '')
