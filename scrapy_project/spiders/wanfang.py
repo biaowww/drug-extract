@@ -5,7 +5,6 @@ import scrapy
 
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
-from scrapy.http import Request
 
 from scrapy_project.items import ScrapyProjectItem
 
